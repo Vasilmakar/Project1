@@ -1,0 +1,37 @@
+runMode
+  --singleFile, -f
+  --benchmark, -b
+  --help, -h
+
+algorithm
+  bubble,cocktail,merge,insertion,quick,shell
+  --algorithm, -a
+
+structure
+  array,singleList,doubleList,queue,stack,binaryTree
+  --stucture, -s
+
+dataType/type
+  int,float,char,string,unsignedLong,unsignedChar
+  --dataType, -t
+
+inputFile - <string>
+  --inputFile, -i
+
+outputFile - <string>
+  --outputFile, -o
+
+resultsFile - <string>
+  --resultsFile, -r
+
+structureSize - <int>
+  --structureSize, -l
+
+iterations - <int>
+  --iterations, -n
+
+pivot - random,left,right,middle
+  --pivot, -p
+
+shellParameter - <int>
+  --shellParameter, -e
