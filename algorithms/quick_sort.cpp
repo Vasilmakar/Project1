@@ -33,9 +33,9 @@ void quickSort(std::vector<int>& A, int p, int r) {
 
 int sorting(int count, std::string file) {
 
-    generateData(count, file);
+    // generateData(count, file);
 
-    vector<int> data1 = get_data(file);
+    vector<int> data1 = get_data(file, count);
 
     std::cout<<"Unsorted array look: ";
     for (int x : data1) std::cout << x << " ";

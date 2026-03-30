@@ -7,7 +7,8 @@ namespace Generation{
     template <typename T>
     void descending(int size){
         T *tab = generate(size);
-        T* sorted = new T[size];
+        quick_sort(tab) 
+
 
     }
 

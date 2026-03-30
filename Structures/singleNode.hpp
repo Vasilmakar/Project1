@@ -16,7 +16,6 @@ template <typename T>
 class SingleList {
 public:
     SingleNode<T>* head;
-
     SingleList() {
         head = nullptr;
     }

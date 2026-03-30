@@ -1,73 +1,52 @@
 #include <iostream>
-#include "benchmark.hpp"
 #include "../AiZO-P1-sortingAlgorithms/Parameters.h"
-#include "../Structures/doubleNode.hpp"
-#include "../Structures/singleNode.hpp"
+#include "../data_generator/generate_random.hpp"
+#include "../algorithms/quick_sort.h"
 
 using namespace std;
 
-
 template <typename T>
-struct Form{
-
-    string name;
-    T* structure;
-
-    Form(std::string val1, T* val2){
-        name = val1;
-        structure =val2;
-    };
-    
-};
-
-
-template<typename T>
-void sorting(T form){
-    switch(Parameters::Algorithms)
-        case Parameters::Algorithms::quick :
-            quickSort(form);
-}
-
-
-template<typename T>
-T* getForm(){
-    srand(time(0));
+void runStructureTest() {
     int size = Parameters::structureSize;
-    T* array(size);
-    SingleList<T> singleList;
-    DoubleList<T> doubleList;
 
-    switch(Parameters::structure)
-        case Parameters::Structures::array : 
-        for(int i = 0; i < size; i++){
-            array[i] = rand() % size;
-        };
-        Form form = new Form("Array", array);
-        return form;
-        
-        case Parameters::Structures::singleList :
-            for(int i = 0; i < size; i++){
-                singleList.push_back(rand() % size);
-            };
-            Form form = new Form("SingleList", singleList);
-            return form;
-
-        case Parameters::Structures::doubleList :
-            for(int i = 0; i < size; i++){
-                doubleList.push_back(rand() % size);
-            };
-            Form form = new Form("DoubleList", doubleList);
-            return form; 
-        return null;
+    switch(Parameters::structure) {
+        case Parameters::Structures::array: {
+            T* data = generateArray<T>(size);
+            // quickSortArray(data, 0, size - 1); 
+            delete[] data;
+            break;
+        }
+        case Parameters::Structures::singleList: {
+            SingleList<T> list = generateSingleList<T>(size);
+            // quickSortSingleList(&list.head); 
+            break;
+        }
+        case Parameters::Structures::doubleList: {
+            DoubleList<T> list = generateDoubleList<T>(size);
+            // quickSortDoubleList(list.head, list.tail);
+            break;
+        }
+        default:
+            cout << "Structure is not supported!\n";
+            break;
+    }
 }
 
-template <typename T>
-void benchmark(){
-    Form form = getForm();
-    
+void benchmark() {
+    cout << "Starting benchmark for " << Parameters::iterations << " iterations...\n";
 
-
-    int i = 0
-
+    switch(Parameters::dataType) {
+        case Parameters::DataTypes::typeInt:
+            runStructureTest<int>();
+            break;
+        case Parameters::DataTypes::typeFloat:
+            runStructureTest<float>();
+            break;
+        case Parameters::DataTypes::typeDouble:
+            runStructureTest<double>();
+            break;
+        default:
+            cout << "That type is not implemented yet.\n";
+            break;
+    }
 }
-

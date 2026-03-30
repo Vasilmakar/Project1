@@ -5,12 +5,14 @@
 using namespace std;
 
 int main(int args, char* argv[]){
+    
 
-    if (Parameters::readParameters(args - 1, argv + 1) == -1) {
-    return -1;
-}
+        if (Parameters::readParameters(args - 1, argv + 1) == -1) {
+            return -1;
+        }
 
     switch(Parameters::runMode){
+        
         case Parameters::RunModes::singleFile:
             cout << "Run mode --singleFile\n"; 
             sorting(Parameters::structureSize, Parameters::inputFile);
@@ -26,8 +28,9 @@ int main(int args, char* argv[]){
             break;
 
         default:
-            std::cout << "Режим ще не реалізовано або сталася помилка.\n";
+            std::cout << "W trakcie...\n";
             break;
     }
+
     return 0;
 }
