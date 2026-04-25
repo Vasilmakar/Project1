@@ -1,24 +1,27 @@
 CXX = g++
 
-# -I. wyszukuje pliki .hpp, od korzenia
-CXXFLAGS = -Wall -std=c++17 -I. -Wl,--allow-multiple-definition
+# Підказуємо компілятору, де лежать файли .hpp
+INCLUDES = -I. -Ialgorithms -Idata -Imodes -IStructures -ITests
 
-# nazwa pliku wykonywalnego
-TARGET = sort_analyzer
+CXXFLAGS = -std=c++17 -Wall -Wextra  $(INCLUDES)
 
-# pliki do kompilacji
-FILES = algorithms/main.cpp \
-	AiZO-P1-sortingAlgorithms/Parameters.cpp \
-	algorithms/quick_sort.cpp \
-       data/get_data.cpp \
-	   algorithms/benchmark.cpp
+# Werror - do flag powyzej, ale potem
 
 
-$(TARGET): $(FILES)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(FILES)
-	@echo "Build success! Run program: ./$(TARGET)"
+TARGET = program
+LIB = libparameters.so
 
+SOURCES = main/main.cpp \
+          modes/singleMode.cpp 
+		  
+
+all: $(LIB) $(TARGET)
+
+$(LIB): Parameters.cpp Parameters.h
+	$(CXX) $(CXXFLAGS) -shared -fPIC Parameters.cpp -o $(LIB)
+
+$(TARGET): $(SOURCES) $(LIB)
+	$(CXX) $(CXXFLAGS) $(SOURCES) -L. -lparameters -Wl,-rpath=. -o $(TARGET)
 
 clean:
-	rm -f $(TARGET)
-	@echo "Cleaned."
+	rm -f $(TARGET) $(LIB)
