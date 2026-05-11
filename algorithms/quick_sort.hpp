@@ -1,17 +1,18 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include "../Parameters.h"
-#include "../Structures/singleNode.hpp"
-#include "../Structures/doubleNode.hpp"
-#include <algorithm> // Для std::swap
-#include <cstdlib>   // Для rand()
+#include "Parameters.h"
+#include "Structures/singleNode.hpp"
+#include "Structures/doubleNode.hpp"
+#include <algorithm>
+#include <cstdlib>
+#include "Structures/queue.hpp"
 
 
 //(Dla Badania Alpha)
 
 
-
+//Funckja poszukiwania węzła pewniącego rolę pivota 
 template <typename NodePtr>
 NodePtr getPivotNode(NodePtr low, NodePtr high, Parameters::Pivots type) {
     if (type == Parameters::Pivots::left) return low; 
@@ -40,11 +41,13 @@ NodePtr getPivotNode(NodePtr low, NodePtr high, Parameters::Pivots type) {
 
 
 
+//QuickSort dla tablicy
 
+//Podział tablicy w zależności od Parameters::pivot
 template <typename T>
 int partitionArray(T* arr, int low, int high, Parameters::Pivots type) {
     // pivot
-    int pivotIndex = high; // default right
+    int pivotIndex = high; // domyślnie prawy
     
     if (type == Parameters::Pivots::left) {
         pivotIndex = low;
@@ -57,7 +60,7 @@ int partitionArray(T* arr, int low, int high, Parameters::Pivots type) {
     std::swap(arr[pivotIndex], arr[high]);
     T pivot = arr[high];
 
-    // lomuto
+   
     int i = low - 1;
     for (int j = low; j < high; j++) {
         if (arr[j] <= pivot) {
@@ -66,8 +69,9 @@ int partitionArray(T* arr, int low, int high, Parameters::Pivots type) {
         }
     }
     std::swap(arr[i + 1], arr[high]);
-    return i + 1;
+    return i + 1; // Zwraca ostateczną pozycję pivota
 }
+
 
 template <typename T>
 void quickSortRecursiveArray(T* arr, int low, int high, Parameters::Pivots type) {
@@ -78,7 +82,7 @@ void quickSortRecursiveArray(T* arr, int low, int high, Parameters::Pivots type)
     }
 }
 
-// main funkcja dla aray
+// Główna funkcja wywołująca QuickSort dla tablicy
 template <typename T>
 void quickSortArray(T* arr, int n, Parameters::Pivots type) {
     if (n > 1) {
@@ -87,8 +91,12 @@ void quickSortArray(T* arr, int n, Parameters::Pivots type) {
 }
 
 
+//Quick Sort dla listy dwukierunkowej
 
 
+// Podział listy dwukierunkowej na wzór schematu Lomuto.
+// Zamianie ulegają wyłącznie wartości (data), dzięki czemu
+// nie trzeba przepinać wskaźników (next, prev).
 template <typename T>
 DoubleNode<T>* partitionDouble(DoubleNode<T>* low, DoubleNode<T>* high, Parameters::Pivots type) {
     DoubleNode<T>* pivotNode = getPivotNode(low, high, type);
@@ -118,7 +126,7 @@ void quickSortRecursiveDouble(DoubleNode<T>* low, DoubleNode<T>* high, Parameter
     }
 }
 
-// main funckja dla double list
+// Główna funkcja wywołująca QuickSort dla listy dwukierunkowej
 template <typename T>
 void quickSortDoubleList(DoubleNode<T>* head, Parameters::Pivots type) {
     if (head == nullptr || head->next == nullptr) return;
@@ -130,7 +138,9 @@ void quickSortDoubleList(DoubleNode<T>* head, Parameters::Pivots type) {
 }
 
 
+//Qiuck Sort dla listy jednokierunkowej
 
+//Logika podobna do tej dla double list
 template <typename T>
 SingleNode<T>* partitionSingle(SingleNode<T>* low, SingleNode<T>* high, Parameters::Pivots type) {
     SingleNode<T>* pivotNode = getPivotNode(low, high, type);
@@ -172,7 +182,7 @@ void quickSortRecursiveSingle(SingleNode<T>* low, SingleNode<T>* high, Parameter
     }
 }
 
-// main funkcja dla single list
+// Główna funkcja wywołująca QuickSort dla listy jednokierunkowej
 template <typename T>
 void quickSortSingleList(SingleNode<T>* head, Parameters::Pivots type) {
     if (head == nullptr || head->next == nullptr) return;
@@ -182,3 +192,32 @@ void quickSortSingleList(SingleNode<T>* head, Parameters::Pivots type) {
     
     quickSortRecursiveSingle(head, tail, type);
 }
+
+
+//Quick Sort dla kolejki
+
+// Implementacja QuickSort przystosowana specjalnie dla struktury FIFO (kolejka).
+// Ponieważ nie mamy dostępu do indeksów, zdejmujemy elementy z oryginalnej kolejki,
+// rozdzielamy na dwie nowe , sortujemy je rekurencyjnie,
+// a na koniec składamy z powrotem w całość.
+template <typename T>
+void quickSortQueue(CustomQueue<T>* q) {
+    if (q->size <= 1) return;
+
+    T pivot = q->pop(); 
+    CustomQueue<T> leftQ;
+    CustomQueue<T> rightQ;
+
+    while (q->size > 0) {
+        T val = q->pop();
+        if (val < pivot) leftQ.push(val);
+        else rightQ.push(val);
+    }
+
+    quickSortQueue(&leftQ);
+
+    // Odtwarzanie posortowanej kolejki
+    while (leftQ.size > 0) q->push(leftQ.pop());
+    q->push(pivot);
+    while (rightQ.size > 0) q->push(rightQ.pop());
+};

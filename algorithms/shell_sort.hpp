@@ -3,14 +3,14 @@
 #include <algorithm>
 #include "Structures/singleNode.hpp"
 #include "Structures/doubleNode.hpp"
-#include "../Parameters.h"
+#include "Parameters.h"
 
 
 
 // poszukiwanie poszatkowego gap w zaleznosci od wzoru
 inline int getInitialGap(int n, Parameters::ShellParameters sequence) {
-    if (sequence == Parameters::ShellParameters ::Shell) return n / 2;
-    if (sequence == Parameters::ShellParameters ::Knuth) {
+    if (sequence == Parameters::ShellParameters::option0) return n / 2;
+    if (sequence == Parameters::ShellParameters ::option1) {
         int gap = 1;
         while (gap < n / 3) gap = 3 * gap + 1;
         return gap;
@@ -18,14 +18,14 @@ inline int getInitialGap(int n, Parameters::ShellParameters sequence) {
     return n / 2;
 }
 
-// dec gap for next krok
+// Wylicza kolejny, mniejszy odstęp na podstawie bieżącego kroku.
 inline int getNextGap(int gap, Parameters::ShellParameters sequence) {
-    if (sequence == Parameters::ShellParameters::Shell) return gap / 2;
-    if (sequence == Parameters::ShellParameters::Knuth) return (gap - 1) / 3;
+    if (sequence == Parameters::ShellParameters::option0) return gap / 2;
+    if (sequence == Parameters::ShellParameters::option1) return (gap - 1) / 3;
     return gap / 2;
 }
 
-//funckja dostaje wezel za indeksem(dla single oraz double list)
+//Funckja dostaje wezel za indeksem(dla single oraz double list)
 template <typename NodePtr>
 NodePtr getNode(NodePtr head, int index) {
     NodePtr current = head;
@@ -35,7 +35,7 @@ NodePtr getNode(NodePtr head, int index) {
     return current;
 }
 
-// obliczenie dlugosci listy
+// obliczenie dlugości listy
 template <typename NodePtr>
 int getListLength(NodePtr head) {
     int length = 0;
@@ -47,7 +47,7 @@ int getListLength(NodePtr head) {
 }
 
 
-// dla tablicy(array)
+// Shell dla tablicy(array), opiera się na algorytmie sortowania przez wstawianie
 template <typename T>
 void shellSortArray(T* arr, int n, Parameters::ShellParameters sequence) {
     int gap = getInitialGap(n, sequence);
@@ -76,14 +76,17 @@ void shellSortDoubleList(DoubleNode<T>* head, Parameters::ShellParameters sequen
     int gap = getInitialGap(n, sequence);
 
     while (gap > 0) {
+        // Sortowanie przez wstawianie dla elementów odległych o aktualny 'gap'
         for (int i = gap; i < n; i++) {
             DoubleNode<T>* nodeI = getNode(head, i);
             T temp = nodeI->data;
             int j = i;
             
+            // Wyszukiwanie odpowiednich węzłów za pomocą getNode()
             DoubleNode<T>* nodeJMinusGap = getNode(head, j - gap);
             DoubleNode<T>* nodeJ = nodeI;
 
+            // Przesuwanie wartości większych wzdłuż przeskoku 'gap'
             while (j >= gap && nodeJMinusGap->data > temp) {
                 nodeJ->data = nodeJMinusGap->data;
                 j -= gap;
@@ -96,7 +99,7 @@ void shellSortDoubleList(DoubleNode<T>* head, Parameters::ShellParameters sequen
     }
 }
 
-//dla SingleList
+//dla SingleList, logika działania jest identyczna jak dla listy dwukierunkowej
 template <typename T>
 void shellSortSingleList(SingleNode<T>* head, Parameters::ShellParameters sequence) {
     int n = getListLength(head);

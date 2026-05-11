@@ -75,8 +75,8 @@ namespace Parameters
 
   enum class ShellParameters {
     undefined = -1,
-    Shell = 0,
-    Knuth,
+    option0 = 0,
+    option1,
     option3,
     option4,
 
@@ -100,6 +100,7 @@ namespace Parameters
 
   extern int structureSize;
   extern int iterations;
+  // extern std::string  studyName; //Zmiana
 
   extern Pivots pivot;
   extern ShellParameters shellParameter;

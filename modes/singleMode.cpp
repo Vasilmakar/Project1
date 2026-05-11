@@ -1,15 +1,15 @@
 #include <iostream>
-// #include "../data/get_data.hpp"
-#include "../Parameters.h"
-// #include "singleTest.hpp"
+#include "Parameters.h"
 #include "singleMode.hpp"
-#include "../dispatchers/singleMOde_dispatcher/dispatch_structure.hpp"
+#include "dispatchers/singleMOde_dispatcher/dispatch_structure.hpp"
+
+// inicjalizacja trybu singleFile
+/// Etap definiowania trybu danych
 void startSingleFileMode() {
     std::string path = Parameters::inputFile;
 
     switch(Parameters::dataType) {
         case Parameters::DataTypes::typeInt: 
-            std::cout<<"Hello 1\n";
             dispatchStructure<int>(path);
             break;
             
@@ -18,15 +18,32 @@ void startSingleFileMode() {
             break;
             
         case Parameters::DataTypes::typeDouble:
+
             dispatchStructure<double>(path);
             break;
             
-        case Parameters::DataTypes::typeString:
+        case Parameters::DataTypes::typeChar:        
+            dispatchStructure<char>(path);
+            break;
+
+        case Parameters::DataTypes::typeString:       
             dispatchStructure<std::string>(path); 
+            break;
+
+        case Parameters::DataTypes::tyleUnsignedInt:
+            dispatchStructure<unsigned int>(path); 
+            break;
+
+        case Parameters::DataTypes::typeUnsignedLong:  
+            dispatchStructure<unsigned long>(path); 
+            break;
+
+        case Parameters::DataTypes::typeUnsignedChar: 
+            dispatchStructure<unsigned char>(path); 
             break;
             
         default:
-            std::cout << "Blad\n";
+            std::cout << "Błąd: Nieznany typ danych\n";            
             break;
     }
 }

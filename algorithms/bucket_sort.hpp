@@ -1,11 +1,11 @@
 #pragma once
 #include <iostream>
-#include "../Structures/doubleNode.hpp"
-#include "../Structures/singleNode.hpp"
+#include "Structures/doubleNode.hpp"
+#include "Structures/singleNode.hpp"
 #include <string>
 
 
-
+// Pomocnicza funkcja do obliczania długości listy wiązanej
 template <typename NodePtr>
 int getListLengthBucket(NodePtr head) {
     int length = 0;
@@ -16,11 +16,12 @@ int getListLengthBucket(NodePtr head) {
     return length;
 }
 
-// main funk dla array
+// Główna funkcja sortowania kubełkowego dla tablic (typy generyczne)
 template <typename T>
 void bucketArraySort(T* arr, int n) {
     if (n <= 1) return;
 
+    //Znajdowanie wartości ekstremalnych w celu ustalenia zakresu danych
     T min_val = arr[0];
     T max_val = arr[0];
     for (int i = 1; i < n; i++) {
@@ -29,28 +30,37 @@ void bucketArraySort(T* arr, int n) {
     }
     if (min_val == max_val) return; 
 
+    // Inicjalizacja kubełków (używamy tablicy wskaźników na listy jednokierunkowe)
     int bucketCount = n;
-    
-    // Tworze buckets recznie(tablica wskaznikow na SingleNode)
     SingleNode<T>** buckets = new SingleNode<T>*[bucketCount];
     for (int i = 0; i < bucketCount; i++) {
         buckets[i] = nullptr; 
     }
-    double range = static_cast<double>(max_val - min_val);
     
-    // KOrzystamy z sortowania Insertion Sort
+    // Obliczanie zakresu z zabezpieczeniem przed dzieleniem przez zero
+    double d_max = static_cast<double>(max_val);
+    double d_min = static_cast<double>(min_val);
+    double range = d_max - d_min;
+    if (range == 0.0) range = 1.0; // ubiezpieczenie od dzielenia przez 0
+    
+    // Rozmieszczanie elementów w kubełkach
     for (int i = 0; i < n; i++) {
-        double normalized = static_cast<double>(arr[i] - min_val) / range;
+        // Normalizacja wartości do przedziału <0, 1> i wyliczenie indeksu
+        double normalized = (static_cast<double>(arr[i]) - d_min) / range;
         int bIndex = static_cast<int>(normalized * (bucketCount - 1));
+
+        // ubiezpieczenie od przekroczenia granicy tablicy
+        if (bIndex >= bucketCount) bIndex = bucketCount - 1;
+        else if (bIndex < 0) bIndex = 0;
+    // ---------------------------------------
 
         SingleNode<T>* newNode = new SingleNode<T>(arr[i]);
 
-        // jesli bucket pusty lub nowy element mniejszy za pierwszy
+        // Wstawianie elementu do kubełka z zachowaniem kolejności rosnącej (wstawianie posortowane)
         if (buckets[bIndex] == nullptr || buckets[bIndex]->data >= arr[i]) {
             newNode->next = buckets[bIndex];
             buckets[bIndex] = newNode;
         } else {
-            // szukanie miejsca dla wstawienia
             SingleNode<T>* current = buckets[bIndex];
             while (current->next != nullptr && current->next->data < arr[i]) {
                 current = current->next;
@@ -60,7 +70,7 @@ void bucketArraySort(T* arr, int n) {
         }
     }
 
-    // zbieramy odsortowane dane i zwalniamy pamiec dodatkowo zajeta
+    // Łączenie posortowanych danych z kubełków z powrotem do tablicy wyjściowej
     int index = 0;
     for (int i = 0; i < bucketCount; i++) {
         SingleNode<T>* current = buckets[i];
@@ -68,19 +78,21 @@ void bucketArraySort(T* arr, int n) {
             arr[index++] = current->data;
             SingleNode<T>* temp = current;
             current = current->next;
-            delete temp;
+            delete temp; // Czyszczenie pamięci po węzłach kubełka
         }
     }
     
     delete[] buckets;
 }
 
-// main funk dla double list
+
+// Sortowanie kubełkowe dla listy dwukierunkowej
 template <typename T>
 void bucketDoubleListSort(DoubleNode<T>* head) {
     int n = getListLengthBucket(head);
     if (n <= 1) return;
 
+    // Ustalanie zakresu wartości w liście
     T min_val = head->data;
     T max_val = head->data;
     DoubleNode<T>* currentList = head->next;
@@ -92,20 +104,28 @@ void bucketDoubleListSort(DoubleNode<T>* head) {
     if (min_val == max_val) return;
 
     int bucketCount = n;
-    
-    // recznie alokowane buckets
     SingleNode<T>** buckets = new SingleNode<T>*[bucketCount];
     for (int i = 0; i < bucketCount; i++) buckets[i] = nullptr;
 
-    double range = static_cast<double>(max_val - min_val);
+   
+    double d_max = static_cast<double>(max_val);
+    double d_min = static_cast<double>(min_val);
+    double range = d_max - d_min;
+    if (range == 0.0) range = 1.0;
     
     currentList = head;
     while (currentList != nullptr) {
-        double normalized = static_cast<double>(currentList->data - min_val) / range;
+        // Dystrybucja węzłów listy do kubełków w oparciu o znormalizowaną wartość
+        double normalized = (static_cast<double>(currentList->data) - d_min) / range;
         int bIndex = static_cast<int>(normalized * (bucketCount - 1));
+
+        if (bIndex >= bucketCount) bIndex = bucketCount - 1;
+        else if (bIndex < 0) bIndex = 0;
+    // ---------------------------------------
 
         SingleNode<T>* newNode = new SingleNode<T>(currentList->data);
 
+        // Sortowanie przez wstawianie wewnątrz danego kubełka
         if (buckets[bIndex] == nullptr || buckets[bIndex]->data >= currentList->data) {
             newNode->next = buckets[bIndex];
             buckets[bIndex] = newNode;
@@ -120,7 +140,8 @@ void bucketDoubleListSort(DoubleNode<T>* head) {
         currentList = currentList->next;
     }
 
-    // zbieramy dane i wyczyszczamy
+    // Przepisywanie wyników do oryginalnej listy
+    // Zmieniamy tylko wartości (data), oryginalna struktura wskaźników listy pozostaje nienaruszona
     currentList = head;
     for (int i = 0; i < bucketCount; i++) {
         SingleNode<T>* currBucket = buckets[i];
@@ -137,13 +158,14 @@ void bucketDoubleListSort(DoubleNode<T>* head) {
     delete[] buckets;
 }
 
-// dla single list
+
+// Sortowanie kubełkowe dla listy jednokierunkowej
 template <typename T>
 void bucketSingleListSort(SingleNode<T>* head) {
-    std::cout<<"Hello\n";
     int n = getListLengthBucket(head);
     if (n <= 1) return;
 
+    //Taka sama logika jak dla DoubleList
     T min_val = head->data;
     T max_val = head->data;
     SingleNode<T>* currentList = head->next;
@@ -155,17 +177,22 @@ void bucketSingleListSort(SingleNode<T>* head) {
     if (min_val == max_val) return;
 
     int bucketCount = n;
-    
-    // allokacja recza
     SingleNode<T>** buckets = new SingleNode<T>*[bucketCount];
     for (int i = 0; i < bucketCount; i++) buckets[i] = nullptr;
 
-    double range = static_cast<double>(max_val - min_val);
+    double d_max = static_cast<double>(max_val);
+    double d_min = static_cast<double>(min_val);
+    double range = d_max - d_min;
+    if (range == 0.0) range = 1.0;
     
     currentList = head;
     while (currentList != nullptr) {
-        double normalized = static_cast<double>(currentList->data - min_val) / range;
+        double normalized = (static_cast<double>(currentList->data) - d_min) / range;
         int bIndex = static_cast<int>(normalized * (bucketCount - 1));
+
+        if (bIndex >= bucketCount) bIndex = bucketCount - 1;
+        else if (bIndex < 0) bIndex = 0;
+    // ---------------------------------------
 
         SingleNode<T>* newNode = new SingleNode<T>(currentList->data);
 
@@ -183,7 +210,6 @@ void bucketSingleListSort(SingleNode<T>* head) {
         currentList = currentList->next;
     }
 
-    // zbior i oczyszczenie
     currentList = head;
     for (int i = 0; i < bucketCount; i++) {
         SingleNode<T>* currBucket = buckets[i];
@@ -200,16 +226,21 @@ void bucketSingleListSort(SingleNode<T>* head) {
     delete[] buckets;
 }
     //wersje dla danych w postaci string
+    //Kategoryzowanie łańcuchów znaków na podstawie pierwszego znaku (ASCII)
+
+    //Dla jednokierunkowej listy stringów
 inline void bucketSingleListSort(SingleNode<std::string>* head) {
     int n = getListLengthBucket(head);
     if (n <= 1) return;
 
+    // 256 kubełków odpowiadających wszystkim możliwym wartościom ASCII
     int bucketCount = 256;
     SingleNode<std::string>** buckets = new SingleNode<std::string>*[bucketCount];
     for (int i = 0; i < bucketCount; i++) buckets[i] = nullptr;
 
     SingleNode<std::string>* currentList = head;
     while (currentList != nullptr) {
+        // Puste stringi trafiają do kubełka 0, pozostałe w zależności od kodu ASCII pierwszej litery
         int bIndex = currentList->data.empty() ? 0 : static_cast<unsigned char>(currentList->data[0]);
 
         SingleNode<std::string>* newNode = new SingleNode<std::string>(currentList->data);
@@ -229,6 +260,7 @@ inline void bucketSingleListSort(SingleNode<std::string>* head) {
     }
 
 
+    // Przepisanie posortowanych stringów z powrotem do listy
     currentList = head;
     for (int i = 0; i < bucketCount; i++) {
         SingleNode<std::string>* currBucket = buckets[i];
@@ -244,6 +276,7 @@ inline void bucketSingleListSort(SingleNode<std::string>* head) {
     delete[] buckets;
 }
 
+// Specjalizacja dla tablicy stringów
 inline void bucketArraySort(std::string* arr, int n) {
     if (n <= 1) return;
 
@@ -257,7 +290,7 @@ inline void bucketArraySort(std::string* arr, int n) {
 
         SingleNode<std::string>* newNode = new SingleNode<std::string>(arr[i]);
 
-        // wstawianie z sortowaniem
+        // Wstawianie stringa do odpowiedniego kubełka w posortowanej kolejności
         if (buckets[bIndex] == nullptr || buckets[bIndex]->data >= arr[i]) {
             newNode->next = buckets[bIndex];
             buckets[bIndex] = newNode;
@@ -286,6 +319,7 @@ inline void bucketArraySort(std::string* arr, int n) {
 }
 
 
+// Specjalizacja dla dwukierunkowej listy stringów
 inline void bucketDoubleListSort(DoubleNode<std::string>* head) {
     int n = getListLengthBucket(head);
     if (n <= 1) return;
@@ -322,8 +356,8 @@ inline void bucketDoubleListSort(DoubleNode<std::string>* head) {
     for (int i = 0; i < bucketCount; i++) {
         SingleNode<std::string>* currBucket = buckets[i];
         while (currBucket != nullptr) {
-            // przepis danych, struct zostaje ta sama
-            // Перезаписуємо тільки дані, структура (next, prev) залишається цілою!
+            // Nadpisujemy tylko dane łańcuchowe (data), a wskaźniki (next, prev) listy dwukierunkowej zostają nietknięte
+            currentList->data = currBucket->data;
             currentList->data = currBucket->data;
             currentList = currentList->next;
             

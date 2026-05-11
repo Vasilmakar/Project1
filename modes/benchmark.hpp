@@ -2,4 +2,4 @@
 
 #include <iostream>
 
-void benchmark();
+void startBenchmark();

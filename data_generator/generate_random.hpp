@@ -1,31 +1,36 @@
 #pragma once
-#include "../Structures/singleNode.hpp"
-#include "../Structures/doubleNode.hpp"
-#include <cstdlib>
+#include "generation_utils.hpp"
+#include <random>
 
-template<typename T>
-T* generateArray(int length, int typeSorted) {
-    T* array = new T[length];
-    for(int i = 0; i < length; i++) {
-        array[i] = static_cast<T>(rand() % length);
+
+// Generuje tablicę o zadanym rozmiarze i wypełnia ją losowymi wartościami.
+// Wykorzystuje 64-bitowy generator Mersenne Twister (std::mt19937_64) zainicjowany 
+// ziarnem z std::random_device, co gwarantuje wysokiej jakości pseudolosowość.
+template <typename T>
+void generateRandomArray(T*& arr, int size) {
+    arr = new T[size];
+    std::mt19937_64 gen(std::random_device{}()); // 64 bitowy generator
+    for (int i = 0; i < size; ++i) {
+        arr[i] = generateRandomValue<T>(gen);
     }
-    return array;
 }
 
-template<typename T>
-SingleList<T> generateSingleList(int length, int typeSorted) {
-    SingleList<T> list;
-    for(int i = 0; i < length; i++) {
-        list.push_back(static_cast<T>(rand() % length));
-    }
-    return list;
+
+// Generowanie listy jednokierunkowej z losowymi danymi, tak samo korzystamy z tablicy pomocniczej
+template <typename T>
+void generateRandomSingleList(SingleNode<T>*& head, int size) {
+    T* tempArr = nullptr;
+    generateRandomArray(tempArr, size);
+    head = arrayToSingleList(tempArr, size);
+    delete[] tempArr;
 }
 
-template<typename T>
-DoubleList<T> generateDoubleList(int length, int typeSorted) {
-    DoubleList<T> list;
-    for(int i = 0; i < length; i++) {
-        list.push_back(static_cast<T>(rand() % length));
-    }
-    return list;
+
+// Generowanie listy dwukierunkowej z losowymi danymi, logika taka sama jak dla Single List
+template <typename T>
+void generateRandomDoubleList(DoubleNode<T>*& head, int size) {
+    T* tempArr = nullptr;
+    generateRandomArray(tempArr, size);
+    head = arrayToDoubleList(tempArr, size);
+    delete[] tempArr;
 }

@@ -1,57 +1,54 @@
 #include <iostream>
-#include "../Parameters.h"
-#include "../data_generator/generate_random.hpp"
-#include "../algorithms/quick_sort.hpp"
-#include "Tests/a_test.hpp"
+#include "Parameters.h"
+#include "dispatchers/benchmark_dispatcher/dispatch_dist.hpp"
 #include "benchmark.hpp"
 using namespace std;
 
-template <typename T>
-void runStructureTest() {
-    int size = Parameters::structureSize;
 
-    switch(Parameters::structure) {
-        case Parameters::Structures::array: {
-            T* data = generateArray<T>(size, 1);
-            for(int i = 0 ; i < Parameters::iterations; i++){
-                quickSort(data, 0, size - 1); 
-            }
-            delete[] data;
+// Inicjalizacja trybu benchmark
+void startBenchmark() {
+
+  // Na tym etapie określamy tym danych na których będziemy operować
+     switch(Parameters::dataType) {
+        // Typy standardowe (całkowitoliczbowe i zmiennoprzecinkowe)
+        case Parameters::DataTypes::typeInt: 
+            dispatchArrayDistribution<int>();
             break;
-        }
-        case Parameters::Structures::singleList: {
-            SingleList<T> list = generateSingleList<T>(size, 1);
-            quickSort(&list.head); 
+            
+        case Parameters::DataTypes::typeFloat:
+            dispatchArrayDistribution<float>(); 
             break;
-        }
-        case Parameters::Structures::doubleList: {
-            DoubleList<T> list = generateDoubleList<T>(size, 1);
-            quickSort(list.head, list.tail);
+            
+        case Parameters::DataTypes::typeDouble:
+
+            dispatchArrayDistribution<double>();
             break;
-        }
+            
+            // Typy tekstowe i znakowe
+        case Parameters::DataTypes::typeString:
+            dispatchArrayDistribution<std::string>(); 
+            break;
+
+        case Parameters::DataTypes::typeChar:
+            dispatchArrayDistribution<char>(); 
+            break;
+
+        // Typy całkowitoliczbowe bez znaku (unsigned)
+        case Parameters::DataTypes::tyleUnsignedInt:
+            dispatchArrayDistribution<unsigned int>(); 
+            break;
+            
+        case Parameters::DataTypes::typeUnsignedLong:
+
+            dispatchArrayDistribution<unsigned long>();
+            break;
+            
+        case Parameters::DataTypes::typeUnsignedChar:
+            dispatchArrayDistribution<unsigned char>(); 
+            break;
+            
         default:
-            cout << "Structure is not supported!\n";
+            std::cout << "Błąd: Nieobsługiwany typ danych do testowania!\n";
             break;
     }
-}
-
-void benchmark() {
-    cout << "Starting benchmark for " << Parameters::iterations << " iterations...\n";
-
-    switch(Parameters::dataType) {
-        case Parameters::DataTypes::typeInt:
-            runStructureTest<int>();
-            break;
-        case Parameters::DataTypes::typeFloat:
-            runStructureTest<float>();
-            break;
-        case Parameters::DataTypes::typeDouble:
-            runStructureTest<double>();
-            break;
-        default:
-            cout << "That type is not implemented yet.\n";
-            break;
-    };
-
-
 }
